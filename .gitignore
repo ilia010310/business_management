@@ -1,0 +1,8 @@
+.idea
+.env
+/.pychache
+/__pycache__
+/venv
+logs.json
+src/logs.json
+/.ruff_cache
