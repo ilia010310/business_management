@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Sequence, Union
 from uuid import uuid4
 
-from sqlalchemy import insert, select, update, delete
+from pydantic import EmailStr
+from sqlalchemy import insert, select, update, delete, and_
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -63,9 +64,9 @@ class SqlAlchemyRepository(AbstractRepository):
         return _id.scalar_one()
 
     async def add_one_and_get_obj(self, **kwargs) -> type(model):
-        query = insert(self.model).values(**kwargs).returning(self.model)
-        _obj: Result = await self.session.execute(query)
-        return _obj.scalar_one()
+        stmt = insert(self.model).values(**kwargs).returning(self.model.id)
+        res = await self.session.execute(stmt)
+        return res.scalar_one()
 
     async def get_by_query_one_or_none(self, **kwargs) -> type(model) | None:
         query = select(self.model).filter_by(**kwargs)
@@ -77,13 +78,8 @@ class SqlAlchemyRepository(AbstractRepository):
         res: Result = await self.session.execute(query)
         return res.scalars().all()
 
-    async def update_one_by_id(
-            self, _id: Union[int, str, uuid4],
-            values: dict
-    ) -> type(model) | None:
-        query = (update(self.model)
-                 .filter(self.model.id == _id)
-                 .values(**values).returning(self.model))
+    async def update_one_by_id(self, _id: Union[int, str, uuid4], values: dict) -> type(model) | None:
+        query = update(self.model).filter(self.model.id == _id).values(**values).returning(self.model)
         _obj: Result | None = await self.session.execute(query)
         return _obj.scalar_one_or_none()
 
@@ -94,3 +90,17 @@ class SqlAlchemyRepository(AbstractRepository):
     async def delete_all(self) -> None:
         query = delete(self.model)
         await self.session.execute(query)
+
+    async def checking_account_existence(self, email: EmailStr) -> list:
+        query = select(self.model).where(self.model.email == email)
+        res: Result = await self.session.execute(query)
+        result = list(res.scalars().all())
+        return result
+
+    async def checking_invitation(self, data: dict) -> list:
+        query = select(self.model).where(
+            and_(self.model.email == data["account"], self.model.code == data["invite_token"])
+        )
+        result: Result = await self.session.execute(query)
+        res = list(result.scalars().all())
+        return res

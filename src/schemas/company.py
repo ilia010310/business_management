@@ -1,5 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CompanySchema(BaseModel):
-    pass
+    name: str = Field(max_length=50)

@@ -6,10 +6,7 @@ TAG_METADATA = [
 ]
 
 TITLE = "Business management"
-DESCRIPTION = (
-    "Implemented on FastAPI.\n\n"
-    "For contact - https://t.me/ilia010310"
-)
+DESCRIPTION = "Implemented on FastAPI.\n\n" "For contact - https://t.me/ilia010310"
 VERSION = "0.0.1"
 
 ERRORS_MAP = {
