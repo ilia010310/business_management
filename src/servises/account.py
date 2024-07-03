@@ -2,6 +2,7 @@ import uuid
 
 from pydantic import EmailStr
 
+from src.utils.jwt_utils import hash_password
 from src.utils.unitofwork import IUnitOfWork
 
 
@@ -11,6 +12,11 @@ class AccountService:
             result = await uow.account.checking_account_existence(email)
             if not result:
                 await uow.invite.add_one(email=email, code=code)
+            return result
+
+    async def checking_account(self, uow: IUnitOfWork, email: EmailStr):
+        async with uow:
+            result = await uow.account.checking_account_existence(email)
             return result
 
     async def create_company(self, uow: IUnitOfWork, data: dict) -> uuid:
@@ -26,6 +32,9 @@ class AccountService:
                 company=company_id,
                 admin=True
             )
-            account = await uow.account.add_one_and_get_obj(email=data['account'], user_id=user_id)
+            account = await uow.account.add_one_and_get_obj(
+                email=data['account'],
+                user_id=user_id,
+                password=hash_password(data['password'])
+            )
             return account
-

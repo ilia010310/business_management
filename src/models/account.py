@@ -13,3 +13,4 @@ class AccountModel(BaseModel):
     id: Mapped[uuid_pk_T]
     email: Mapped[str_50_T]
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id"), unique=True)
+    password: Mapped[bytes]
