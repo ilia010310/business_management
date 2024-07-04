@@ -1,4 +1,4 @@
-.idea
+.idea/
 .env
 /.pychache
 /__pycache__
@@ -6,3 +6,7 @@
 logs.json
 src/logs.json
 /.ruff_cache
+**/__pycache__/
+__pycache__/
+/certs
+*pyc
