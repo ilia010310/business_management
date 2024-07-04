@@ -20,7 +20,7 @@ class SecretsModel(BaseModel):
     __tablename__ = "secrets"
 
     id: Mapped[uuid_pk_T]
-    password = Mapped[str] = mapped_column(nullable=False)
+    password: Mapped[bytes]
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False)
     user = relationship("UserModel", back_populates="secrets")
     account_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("account.id"), nullable=False)

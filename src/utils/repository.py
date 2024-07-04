@@ -1,3 +1,4 @@
+import uuid
 from abc import ABC, abstractmethod
 from typing import Sequence, Union
 from uuid import uuid4
@@ -63,7 +64,7 @@ class SqlAlchemyRepository(AbstractRepository):
         _id: Result = await self.session.execute(query)
         return _id.scalar_one()
 
-    async def add_one_and_get_obj(self, **kwargs) -> type(model):
+    async def add_one_and_get_obj(self, **kwargs) -> Union[int, str, uuid4]:
         stmt = insert(self.model).values(**kwargs).returning(self.model.id)
         res = await self.session.execute(stmt)
         return res.scalar_one()
@@ -104,3 +105,29 @@ class SqlAlchemyRepository(AbstractRepository):
         result: Result = await self.session.execute(query)
         res = list(result.scalars().all())
         return res
+
+    async def get_one(self, id: str):
+        query = select(self.model).where(self.model.id == id)
+        result: Result = await self.session.execute(query)
+        res = result.scalars().all()
+        if res:
+            return res[0]
+        return []
+
+    async def get_company_id_from_account(self, account_id: uuid.UUID) -> uuid.UUID:
+        query = select(self.model.user_id).where(self.model.id == account_id)
+        result: Result = await self.session.execute(query)
+        user_id: uuid.UUID = result.scalars().all()[0]
+        return user_id
+
+    async def get_company_id_from_members(self, user_id: uuid.UUID) -> uuid.UUID:
+        query = select(self.model.company).where(self.model.user == user_id)
+        result: Result = await self.session.execute(query)
+        company_id: uuid.UUID = result.scalars().all()[0]
+        return company_id
+
+    async def get_email_from_code(self, code: int) -> EmailStr:
+        query = select(self.model.email).where(self.model.code == code)
+        result: Result = await self.session.execute(query)
+        email: EmailStr = result.scalars().all()[0]
+        return email

@@ -22,9 +22,11 @@ router = APIRouter(prefix="/auth/v1", tags=["Auth"])
 
 @router.get("/check_account")
 async def register_employee(email: EmailStr, uow: UOWDep) -> dict:
-    """Генерирует проверочеый код,
-    Добавляет информацию в приглашения,
-    Отправляет приглашение на почту"""
+    """Проверяет наличие почты в базе,
+    если она не обнаружена:
+     генерирует проверочеый код,
+    добавляет информацию в приглашения,
+    отправляет приглашение на почту"""
     code = generator_invite_codes()
     result = await AccountService().checking_account_and_send_invitation(uow, email, code)
     if result:
@@ -50,13 +52,14 @@ async def sing_up_complete(data: SingUpCompleteSchema, uow: UOWDep) -> dict:
         return {"status": "success"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Is not success")
 
+
 @router.post("/login", response_model=TokenInfo)
 async def auth_user(
-    account: AccountSchema = Depends(validate_auth_user),
+        account: AccountSchema = Depends(validate_auth_user),
 ):
     jwt_payload = {
         "sub": account.id,
-        "email": account.email,
+        "username": account.email,
     }
     token = auth_utils.encode_jwt(jwt_payload)
     return TokenInfo(

@@ -2,6 +2,7 @@ import uuid
 
 from pydantic import EmailStr
 
+from src.schemas.account import AccountSchema
 from src.utils.jwt_utils import hash_password
 from src.utils.unitofwork import IUnitOfWork
 
@@ -38,3 +39,23 @@ class AccountService:
                 password=hash_password(data['password'])
             )
             return account
+
+    async def get_one_account(self, uow: IUnitOfWork, account_id: str) -> AccountSchema | list:
+        async with uow:
+            result = await uow.account.get_one(account_id)
+            return result
+
+    async def get_company_id(self, uow: IUnitOfWork, account: AccountSchema) -> uuid.UUID:
+        async with uow:
+            company_id: uuid.UUID = await uow.account.get_company_id_from_account(account.id)
+            return company_id
+
+    async def change_email(
+            self,
+            uow: IUnitOfWork,
+            account_id: uuid.UUID,
+            email: EmailStr,
+    ):
+        data = {"email": email}
+        async with uow:
+            await uow.account.update_one_by_id(account_id, data)

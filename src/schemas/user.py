@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, UUID4
+from pydantic import BaseModel, Field, UUID4, EmailStr
 
 
 class IdUserSchema(BaseModel):
@@ -11,8 +11,12 @@ class CreateUserSchema(BaseModel):
     middle_name: str | None = Field(max_length=50, default=None)
 
 
+
 class UserSchema(IdUserSchema, CreateUserSchema):
     pass
+
+class CreateUserSchemaAndEmail(CreateUserSchema):
+    email: EmailStr
 
 
 class UpdateUserSchema(IdUserSchema):

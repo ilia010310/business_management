@@ -13,3 +13,12 @@ class InviteService:
         async with uow:
             result: list = await uow.invite.checking_invitation(dict(data))
             return result
+
+    async def get_email(
+            self,
+            uow: IUnitOfWork,
+            code: int,
+    ) -> EmailStr:
+        async with uow:
+            email: EmailStr = await uow.invite.get_email_from_code(code)
+            return email
