@@ -64,10 +64,10 @@ class SqlAlchemyRepository(AbstractRepository):
         _id: Result = await self.session.execute(query)
         return _id.scalar_one()
 
-    async def add_one_and_get_obj(self, **kwargs) -> Union[int, str, uuid4]:
-        stmt = insert(self.model).values(**kwargs).returning(self.model.id)
-        res = await self.session.execute(stmt)
-        return res.scalar_one()
+    async def add_one_and_get_obj(self, **kwargs) -> type(model):
+        query = insert(self.model).values(**kwargs).returning(self.model)
+        _obj: Result = await self.session.execute(query)
+        return _obj.scalar_one()
 
     async def get_by_query_one_or_none(self, **kwargs) -> type(model) | None:
         query = select(self.model).filter_by(**kwargs)
@@ -92,11 +92,13 @@ class SqlAlchemyRepository(AbstractRepository):
         query = delete(self.model)
         await self.session.execute(query)
 
-    async def checking_account_existence(self, email: EmailStr) -> list:
+    async def checking_account_existence(self, email: EmailStr) -> bool:
         query = select(self.model).where(self.model.email == email)
         res: Result = await self.session.execute(query)
-        result = list(res.scalars().all())
-        return result
+        account = list(res.scalars().all())
+        if account:
+            return True
+        return False
 
     async def checking_invitation(self, data: dict) -> list:
         query = select(self.model).where(
@@ -114,11 +116,10 @@ class SqlAlchemyRepository(AbstractRepository):
             return res[0]
         return []
 
-    async def get_company_id_from_account(self, account_id: uuid.UUID) -> uuid.UUID:
+    async def get_user_id_from_account(self, account_id: uuid.UUID) -> uuid.UUID:
         query = select(self.model.user_id).where(self.model.id == account_id)
-        result: Result = await self.session.execute(query)
-        user_id: uuid.UUID = result.scalars().all()[0]
-        return user_id
+        user_id: Result | None = await self.session.execute(query)
+        return user_id.scalar_one_or_none()
 
     async def get_company_id_from_members(self, user_id: uuid.UUID) -> uuid.UUID:
         query = select(self.model.company).where(self.model.user == user_id)

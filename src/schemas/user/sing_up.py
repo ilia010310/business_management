@@ -1,7 +1,5 @@
 from pydantic import BaseModel, Field, conint
 
-from src.models import AccountModel
-
 
 class SingUpSchema(BaseModel):
     account: str = Field(max_length=50)

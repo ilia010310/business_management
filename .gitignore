@@ -9,4 +9,5 @@ src/logs.json
 **/__pycache__/
 __pycache__/
 /certs
+*pyc
 

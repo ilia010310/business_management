@@ -3,10 +3,12 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import EmailStr
 from src.api.dependencies import UOWDep
-from src.api.v1.auth.registration import register_employee
-from src.api.v1.create_new_user.create_dependencies import get_current_account
-from src.schemas.account import AccountSchema
-from src.schemas.user import CreateUserSchema
+from src.api.user.v1.registration import register_employee
+from src.api.user.v1.dependencies.jwt_dependencies import get_current_account
+from src.models.user import UserModel
+from src.schemas.response import ResponseCreateNewUser, ResponseRequestChangeEmail
+from src.schemas.user.account import AccountSchema
+from src.schemas.user import CreateUserSchema, CreateUserSchemaAndEmailAndId, RequestChangeEmailSchema
 from src.servises.account import AccountService
 from src.servises.invite import InviteService
 from src.servises.user import UserService
@@ -14,19 +16,21 @@ from src.servises.user import UserService
 router = APIRouter(prefix="/user/v1", tags=["Data operations"])
 
 
-@router.post("/names")
-async def change_names(
+@router.post("/ditail")
+async def change_ditail(
         uow: UOWDep,
         new_data: CreateUserSchema,
         account: AccountSchema = Depends(get_current_account)
 
-) -> dict:
-    user_id: uuid.UUID = await AccountService().get_company_id(uow, account)
-    await UserService().change_names(uow, user_id, new_data)
-    return {
-        "status": "success",
-        "detail": "usernames changed"
-    }
+) -> ResponseCreateNewUser:
+    user: CreateUserSchemaAndEmailAndId = await AccountService().change_ditail(uow, account, new_data)
+    return ResponseCreateNewUser(
+        status=201,
+        error=False,
+        payload=user,
+        detail="The user successfully updated the information",
+    )
+
 
 
 @router.post("/change_email")
@@ -35,15 +39,15 @@ async def request_for_change_email(
         email: EmailStr,
         account: AccountSchema = Depends(get_current_account),
 
-):
-    existence_check = await register_employee(email, uow)
-    if existence_check.get("exists"):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="This email is already taken")
-    return {
-        "status": "success",
-        "detail": "verification code sent by email"
-    }
+) -> ResponseRequestChangeEmail:
+    request_for_change: RequestChangeEmailSchema = await UserService().request_for_change_email(uow, email, account)
+
+    return ResponseRequestChangeEmail(
+        status=200,
+        error=False,
+        payload=request_for_change,
+        detail="The new user has been created",
+    )
 
 
 @router.post("/confirm_email")

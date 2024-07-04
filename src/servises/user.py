@@ -1,14 +1,50 @@
 import uuid
 
-from src.schemas.user import CreateUserSchema
+from fastapi import HTTPException, status
+from pydantic import EmailStr
+
+from src.tasks.tasks import send_invite_code_to_email
+
+from src.models.user import UserModel, InviteModel
+from src.schemas.user import CreateUserSchema, CreateUserSchemaAndEmailAndId, AccountSchema, RequestChangeEmailSchema
+from src.utils.generator_invite_codes import generator_invite_codes
 from src.utils.unitofwork import IUnitOfWork
 
 
 class UserService:
-    async def add_one(self, uow: IUnitOfWork, employee: CreateUserSchema):
+    async def add_one_user_for_company(
+            self,
+            uow: IUnitOfWork,
+            employee: CreateUserSchemaAndEmailAndId,
+            account: AccountSchema
+    ) -> CreateUserSchemaAndEmailAndId:
         async with uow:
-            result = await uow.user.add_one_and_get_obj(**dict(employee))
-            return result
+            code = generator_invite_codes()
+            invite_exist: bool = await uow.account.checking_account_existence(employee.email)
+            if not invite_exist:
+                invite: InviteModel = await uow.invite.add_one_and_get_obj(email=employee.email, code=code)
+                send_invite_code_to_email.delay(employee.email, code)
+            else:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This email already exists")
+            user: UserModel = await uow.user.add_one_and_get_obj(
+                first_name=employee.first_name,
+                last_name=employee.last_name,
+                middle_name=employee.middle_name
+            )
+            admin_user_id: uuid.UUID = await uow.account.get_user_id_from_account(account.id)
+            company_id: uuid.UUID = await uow.members.get_company_id_from_members(admin_user_id)
+
+            await uow.members.add_one(
+                user=user.id,
+                company=company_id
+            )
+            return CreateUserSchemaAndEmailAndId(
+                id=user.id,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                middle_name=user.middle_name,
+                email=invite.email
+            )
 
     async def change_names(
             self,
@@ -18,3 +54,26 @@ class UserService:
     ) -> None:
         async with uow:
             await uow.user.update_one_by_id(user_id, dict(data))
+
+    async def request_for_change_email(
+            self,
+            uow: IUnitOfWork,
+            new_email: EmailStr,
+            account: AccountSchema,
+    ) -> RequestChangeEmailSchema:
+        async with uow:
+            code = generator_invite_codes()
+            invite_exist: bool = await uow.account.checking_account_existence(new_email)
+            if not invite_exist:
+                invite: InviteModel = await uow.invite.add_one_and_get_obj(email=new_email, code=code)
+                send_invite_code_to_email.delay(new_email, code)
+            else:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This email already exists")
+            user_id = await uow.user.get_user_id_from_account(account.id)
+            if not user_id:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User in not found")
+            return RequestChangeEmailSchema(
+                old_email=account.email,
+                new_email=new_email,
+                user_id=user_id,
+            )

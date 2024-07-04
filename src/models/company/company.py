@@ -1,8 +1,6 @@
-from typing import List
-
 from sqlalchemy.orm import Mapped, relationship
 
-from src.models.user import BaseModel
+from src.models.base import BaseModel
 from src.models.mixins.custom_types import (
     uuid_pk_T,
     created_at_T,
@@ -10,7 +8,7 @@ from src.models.mixins.custom_types import (
     str_50_T,
     int_or_none,
 )
-from src.schemas.company import CompanySchema
+from src.schemas.company.company import CompanySchema
 
 
 class CompanyModel(BaseModel):

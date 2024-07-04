@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials
 
-from src.schemas.account import AccountSchema
+from src.schemas.user.account import AccountSchema
 from src.servises.account import AccountService
 from src.utils import jwt_utils as auth_utils
 from src.api.dependencies import UOWDep, oauth2_scheme

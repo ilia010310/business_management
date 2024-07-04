@@ -1,4 +1,4 @@
-from src.models import CompanyModel
+from src.models.company import CompanyModel
 from src.utils.repository import SqlAlchemyRepository
 
 
