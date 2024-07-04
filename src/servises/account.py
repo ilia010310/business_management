@@ -22,7 +22,7 @@ class AccountService:
 
     async def create_company(self, uow: IUnitOfWork, data: dict) -> uuid:
         async with uow:
-            company_id = await uow.company.add_one_and_get_obj(name=data["company_name"])
+            company_id: uuid.UUID = await uow.company.add_one_and_get_id(name=data["company_name"])
 
             user_id = await uow.user.add_one_and_get_obj(
                 first_name=data["first_name"],

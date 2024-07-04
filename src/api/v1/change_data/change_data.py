@@ -11,7 +11,7 @@ from src.servises.account import AccountService
 from src.servises.invite import InviteService
 from src.servises.user import UserService
 
-router = APIRouter(prefix="/change/v1", tags=["Data operations"])
+router = APIRouter(prefix="/user/v1", tags=["Data operations"])
 
 
 @router.post("/names")
