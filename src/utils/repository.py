@@ -1,8 +1,10 @@
+import uuid
 from abc import ABC, abstractmethod
 from typing import Sequence, Union
 from uuid import uuid4
 
-from sqlalchemy import insert, select, update, delete
+from pydantic import EmailStr
+from sqlalchemy import insert, select, update, delete, and_
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -77,13 +79,8 @@ class SqlAlchemyRepository(AbstractRepository):
         res: Result = await self.session.execute(query)
         return res.scalars().all()
 
-    async def update_one_by_id(
-            self, _id: Union[int, str, uuid4],
-            values: dict
-    ) -> type(model) | None:
-        query = (update(self.model)
-                 .filter(self.model.id == _id)
-                 .values(**values).returning(self.model))
+    async def update_one_by_id(self, _id: Union[int, str, uuid4], values: dict) -> type(model) | None:
+        query = update(self.model).filter(self.model.id == _id).values(**values).returning(self.model)
         _obj: Result | None = await self.session.execute(query)
         return _obj.scalar_one_or_none()
 
@@ -94,3 +91,43 @@ class SqlAlchemyRepository(AbstractRepository):
     async def delete_all(self) -> None:
         query = delete(self.model)
         await self.session.execute(query)
+
+    async def checking_account_existence(self, email: EmailStr) -> bool:
+        query = select(self.model).where(self.model.email == email)
+        res: Result = await self.session.execute(query)
+        account = list(res.scalars().all())
+        if account:
+            return True
+        return False
+
+    async def checking_invitation(self, data: dict) -> list:
+        query = select(self.model).where(
+            and_(self.model.email == data["account"], self.model.code == data["invite_token"])
+        )
+        result: Result = await self.session.execute(query)
+        res = list(result.scalars().all())
+        return res
+
+    async def get_one(self, id: str):
+        query = select(self.model).where(self.model.id == id)
+        result: Result = await self.session.execute(query)
+        res = result.scalars().all()
+        if res:
+            return res[0]
+        return []
+
+    async def get_user_id_from_account(self, account_id: uuid.UUID) -> uuid.UUID:
+        query = select(self.model.user_id).where(self.model.id == account_id)
+        user_id: Result | None = await self.session.execute(query)
+        return user_id.scalar_one_or_none()
+
+    async def get_company_id_from_members(self, user_id: uuid.UUID) -> uuid.UUID:
+        query = select(self.model.company).where(self.model.user == user_id)
+        result: Result = await self.session.execute(query)
+        company_id: uuid.UUID = result.scalars().all()[0]
+        return company_id
+
+    async def get_email_from_code(self, code: int) -> EmailStr:
+        query = select(self.model.email).where(self.model.code == code)
+        email: Result | None = await self.session.execute(query)
+        return email.scalar_one_or_none()

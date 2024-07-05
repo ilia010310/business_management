@@ -1,11 +1,20 @@
 from abc import ABC, abstractmethod
+from typing import Type
 
 from src.database.db import async_session_maker
+from src.repositories.account import AccountRepository
+from src.repositories.company import CompanyRepository
+from src.repositories.invite import InviteRepository
 from src.repositories.user import UserRepository
+from src.repositories.members import MembersRepository
 
 
 class IUnitOfWork(ABC):
     user: UserRepository
+    account: AccountRepository
+    invite: InviteRepository
+    company: CompanyRepository
+    members: MembersRepository
 
     @abstractmethod
     def __init__(self):
@@ -37,6 +46,10 @@ class UnitOfWork(IUnitOfWork):
     async def __aenter__(self):
         self.session = self.session_factory()
         self.user = UserRepository(self.session)
+        self.account = AccountRepository(self.session)
+        self.invite = InviteRepository(self.session)
+        self.company = CompanyRepository(self.session)
+        self.members = MembersRepository(self.session)
 
     async def __aexit__(self, exc_type, *args):
         if not exc_type:
