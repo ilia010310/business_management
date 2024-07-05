@@ -1,5 +1,3 @@
-import uuid
-
 from src.api.user.v1.dependencies.auth_dependencies import validate_auth_user
 from src.models.user import InviteModel
 from src.schemas.company import CreateCompanySchema
@@ -13,8 +11,6 @@ from src.api.dependencies import UOWDep
 
 from src.servises.account import AccountService
 from src.servises.invite import InviteService
-
-
 
 router = APIRouter(prefix="/auth/v1", tags=["Auth"])
 
@@ -73,7 +69,7 @@ async def sing_up_complete(data: SingUpCompleteSchema, uow: UOWDep):
 
 @router.post("/login", response_model=TokenInfo)
 async def auth_user(
-        account: AccountSchema = Depends(validate_auth_user),
+    account: AccountSchema = Depends(validate_auth_user),
 ):
     jwt_payload = {
         "sub": account.id,

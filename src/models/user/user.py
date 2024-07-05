@@ -23,11 +23,7 @@ class UserModel(BaseModel):
     created_at: Mapped[created_at_T]
     updated_at: Mapped[updated_at_T]
     middle_name: Mapped[str_50_or_none_T]
-    companies: Mapped[list["CompanyModel"]] = relationship(
-        "CompanyModel",
-        back_populates="users",
-        secondary="members"
-    )
+    companies: Mapped[list["CompanyModel"]] = relationship("CompanyModel", back_populates="users", secondary="members")
 
     def to_pydantic_schema(self) -> UserSchema:
         return UserSchema(

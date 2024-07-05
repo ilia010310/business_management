@@ -12,9 +12,8 @@ router = APIRouter(prefix="/user/v1", tags=["Data operations"])
 
 @router.post("/send_invite", response_model=ResponseCreateNewUser)
 async def create_new_user(
-        uow: UOWDep,
-        new_user: CreateUserSchema,
-        account: AccountSchema = Depends(get_current_account)):
+    uow: UOWDep, new_user: CreateUserSchema, account: AccountSchema = Depends(get_current_account)
+):
     """Создает нового сотрудника, привязывает его к компании,
     отправляет приглашение на почту"""
     new_user: CreateUserSchemaAndEmailAndId = await UserService().add_one_user_for_company(uow, new_user, account)

@@ -15,4 +15,3 @@ class InviteModel(BaseModel):
     email: Mapped[str_50_T]
     code: Mapped[int]
     created_at: Mapped[created_at_T]
-

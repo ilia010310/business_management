@@ -3,4 +3,3 @@ __all__ = [
 ]
 
 from src.models.company.company import CompanyModel
-

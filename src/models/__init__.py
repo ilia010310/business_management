@@ -6,4 +6,3 @@ __all__ = [
 
 from src.models.base import BaseModel
 from src.models.members import MembersModel
-

@@ -3,10 +3,7 @@ TAG_METADATA = [
         "name": "Auth",
         "description": "User authorization",
     },
-    {
-        "name": "Data operations",
-        "descriptions": "Work with data"
-    }
+    {"name": "Data operations", "descriptions": "Work with data"},
 ]
 
 TITLE = "Business management"

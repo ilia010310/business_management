@@ -8,7 +8,7 @@ from jwt.exceptions import InvalidTokenError
 
 
 async def get_current_token_payload(
-        token: str = Depends(oauth2_scheme),
+    token: str = Depends(oauth2_scheme),
 ) -> dict:
     print(token)
     try:
@@ -25,8 +25,8 @@ async def get_current_token_payload(
 
 
 async def get_current_auth_account(
-        uow: UOWDep,
-        payload: dict = Depends(get_current_token_payload),
+    uow: UOWDep,
+    payload: dict = Depends(get_current_token_payload),
 ) -> AccountSchema:
     account_id: str = payload.get("sub")
     account: AccountSchema = await AccountService().get_one_account(uow, account_id)
@@ -39,7 +39,7 @@ async def get_current_auth_account(
 
 
 async def get_current_account(
-        account: AccountSchema = Depends(get_current_auth_account),
+    account: AccountSchema = Depends(get_current_auth_account),
 ):
     if account.active:
         return account

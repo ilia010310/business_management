@@ -19,11 +19,7 @@ class CompanyModel(BaseModel):
     inn: Mapped[int_or_none]
     created_at: Mapped[created_at_T]
     updated_at: Mapped[updated_at_T]
-    users: Mapped[list["UserModel"]] = relationship(
-        "UserModel",
-        back_populates="companies",
-        secondary="members"
-    )
+    users: Mapped[list["UserModel"]] = relationship("UserModel", back_populates="companies", secondary="members")
 
     def to_pydantic_schema(self) -> CompanySchema:
         return CompanySchema(

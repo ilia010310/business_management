@@ -1,8 +1,4 @@
-__all__ = [
-    "AccountModel",
-    "InviteModel",
-    "UserModel"
-]
+__all__ = ["AccountModel", "InviteModel", "UserModel"]
 
 from src.models.user.account import AccountModel
 from src.models.user.invite import InviteModel

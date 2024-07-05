@@ -4,4 +4,3 @@ from src.schemas.user import InviteSchema
 
 class ResponseInvite(ResponseBase):
     payload: InviteSchema
-

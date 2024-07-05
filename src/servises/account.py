@@ -33,19 +33,10 @@ class AccountService:
         async with uow:
             company: CompanyModel = await uow.company.add_one_and_get_obj(name=data.company_name)
 
-            user_id = await uow.user.add_one_and_get_id(
-                first_name=data["first_name"],
-                last_name=data["last_name"]
-            )
-            await uow.members.add_one(
-                user=user_id,
-                company=company.id,
-                admin=True
-            )
+            user_id = await uow.user.add_one_and_get_id(first_name=data["first_name"], last_name=data["last_name"])
+            await uow.members.add_one(user=user_id, company=company.id, admin=True)
             account = await uow.account.add_one_and_get_obj(
-                email=data['account'],
-                user_id=user_id,
-                password=hash_password(data['password'])
+                email=data["account"], user_id=user_id, password=hash_password(data["password"])
             )
             return CreateCompanySchema(
                 company_id=company.id,
@@ -65,20 +56,20 @@ class AccountService:
             return company_id
 
     async def change_email(
-            self,
-            uow: IUnitOfWork,
-            account_id: uuid.UUID,
-            email: EmailStr,
+        self,
+        uow: IUnitOfWork,
+        account_id: uuid.UUID,
+        email: EmailStr,
     ):
         data = {"email": email}
         async with uow:
             await uow.account.update_one_by_id(account_id, data)
 
     async def change_ditail(
-            self,
-            uow: IUnitOfWork,
-            account: AccountSchema,
-            new_data: CreateUserSchema,
+        self,
+        uow: IUnitOfWork,
+        account: AccountSchema,
+        new_data: CreateUserSchema,
     ) -> CreateUserSchemaAndEmailAndId:
         async with uow:
             # account.user_id - user_id
@@ -94,8 +85,8 @@ class AccountService:
                 {
                     "first_name": new_data.first_name,
                     "last_name": new_data.last_name,
-                    "middle_name": new_data.middle_name
-                }
+                    "middle_name": new_data.middle_name,
+                },
             )
             if not user:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -104,5 +95,5 @@ class AccountService:
                 first_name=user.first_name,
                 last_name=user.last_name,
                 middle_name=user.middle_name,
-                email=account.email
+                email=account.email,
             )

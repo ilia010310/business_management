@@ -27,6 +27,7 @@ class UpdateUserSchema(IdUserSchema):
     last_name: str | None = Field(max_length=50, default=None)
     middle_name: str | None = Field(max_length=50, default=None)
 
+
 class RequestChangeEmailSchema(BaseModel):
     old_email: EmailStr
     new_email: EmailStr

@@ -129,6 +129,5 @@ class SqlAlchemyRepository(AbstractRepository):
 
     async def get_email_from_code(self, code: int) -> EmailStr:
         query = select(self.model.email).where(self.model.code == code)
-        result: Result = await self.session.execute(query)
-        email: EmailStr = result.scalars().all()[0]
-        return email
+        email: Result | None = await self.session.execute(query)
+        return email.scalar_one_or_none()
