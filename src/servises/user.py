@@ -3,7 +3,8 @@ import uuid
 from fastapi import HTTPException, status
 from pydantic import EmailStr
 
-from src.tasks.tasks import send_invite_code_to_email
+from src.schemas.user.user import CreateUserSchemaAndEmail
+from src.tasks.tasks import send_invite_code_to_email, send_invite_link_to_email
 
 from src.models.user import UserModel, InviteModel
 from src.schemas.user import CreateUserSchema, CreateUserSchemaAndEmailAndId, AccountSchema, RequestChangeEmailSchema
@@ -13,19 +14,17 @@ from src.utils.unitofwork import IUnitOfWork
 
 class UserService:
     async def add_one_user_for_company(
-        self, uow: IUnitOfWork, employee: CreateUserSchemaAndEmailAndId, account: AccountSchema
+            self, uow: IUnitOfWork, employee: CreateUserSchemaAndEmail, account: AccountSchema
     ) -> CreateUserSchemaAndEmailAndId:
         async with uow:
-            code = generator_invite_codes()
             invite_exist: bool = await uow.account.checking_account_existence(employee.email)
-            if not invite_exist:
-                invite: InviteModel = await uow.invite.add_one_and_get_obj(email=employee.email, code=code)
-                send_invite_code_to_email.delay(employee.email, code)
-            else:
+            if invite_exist:
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This email already exists")
             user: UserModel = await uow.user.add_one_and_get_obj(
                 first_name=employee.first_name, last_name=employee.last_name, middle_name=employee.middle_name
             )
+            link = f"http://127.0.0.1:8000/api/auth/v1/complete_sing_up/{user.id}/{employee.email}"
+            send_invite_link_to_email.delay(employee.email, link)
             admin_user_id: uuid.UUID = await uow.account.get_user_id_from_account(account.id)
             company_id: uuid.UUID = await uow.members.get_company_id_from_members(admin_user_id)
 
@@ -43,10 +42,10 @@ class UserService:
             await uow.user.update_one_by_id(user_id, dict(data))
 
     async def request_for_change_email(
-        self,
-        uow: IUnitOfWork,
-        new_email: EmailStr,
-        account: AccountSchema,
+            self,
+            uow: IUnitOfWork,
+            new_email: EmailStr,
+            account: AccountSchema,
     ) -> RequestChangeEmailSchema:
         async with uow:
             code = generator_invite_codes()

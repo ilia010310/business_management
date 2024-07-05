@@ -56,20 +56,20 @@ class AccountService:
             return company_id
 
     async def change_email(
-        self,
-        uow: IUnitOfWork,
-        account_id: uuid.UUID,
-        email: EmailStr,
+            self,
+            uow: IUnitOfWork,
+            account_id: uuid.UUID,
+            email: EmailStr,
     ):
         data = {"email": email}
         async with uow:
             await uow.account.update_one_by_id(account_id, data)
 
     async def change_ditail(
-        self,
-        uow: IUnitOfWork,
-        account: AccountSchema,
-        new_data: CreateUserSchema,
+            self,
+            uow: IUnitOfWork,
+            account: AccountSchema,
+            new_data: CreateUserSchema,
     ) -> CreateUserSchemaAndEmailAndId:
         async with uow:
             # account.user_id - user_id
@@ -96,4 +96,31 @@ class AccountService:
                 last_name=user.last_name,
                 middle_name=user.middle_name,
                 email=account.email,
+            )
+
+    async def add_user_password(
+            self,
+            uow: IUnitOfWork,
+            user_id: uuid.UUID,
+            email: EmailStr,
+            password: str
+    ) -> CreateUserSchemaAndEmailAndId:
+        async with uow:
+            check_account: bool = await uow.account.checking_account_existence(email)
+            if check_account:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This user already exist")
+            await uow.account.add_one(
+                email=email,
+                user_id=user_id,
+                password=hash_password(password)
+            )
+            user: UserModel | None = await uow.user.get_by_query_one_or_none(user_id=user_id)
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="This user doesnt exist")
+            return CreateUserSchemaAndEmailAndId(
+                first_name=user.first_name,
+                last_name=user.last_name,
+                middle_name=user.middle_name,
+                id=user_id,
+                email=email,
             )

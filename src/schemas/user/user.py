@@ -17,9 +17,12 @@ class UserSchema(IdUserSchema, CreateUserSchema):
     pass
 
 
-class CreateUserSchemaAndEmailAndId(CreateUserSchema):
-    id: uuid.UUID
+class CreateUserSchemaAndEmail(CreateUserSchema):
     email: EmailStr
+
+
+class CreateUserSchemaAndEmailAndId(CreateUserSchemaAndEmail):
+    id: uuid.UUID
 
 
 class UpdateUserSchema(IdUserSchema):

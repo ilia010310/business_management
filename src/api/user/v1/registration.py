@@ -1,3 +1,5 @@
+import uuid
+
 from src.api.user.v1.dependencies.auth_dependencies import validate_auth_user
 from src.models.user import InviteModel
 from src.schemas.company import CreateCompanySchema
@@ -69,7 +71,7 @@ async def sing_up_complete(data: SingUpCompleteSchema, uow: UOWDep):
 
 @router.post("/login", response_model=TokenInfo)
 async def auth_user(
-    account: AccountSchema = Depends(validate_auth_user),
+        account: AccountSchema = Depends(validate_auth_user),
 ):
     jwt_payload = {
         "sub": account.id,
@@ -79,4 +81,25 @@ async def auth_user(
     return TokenInfo(
         access_token=token,
         token_type="Bearer",
+    )
+
+
+@router.post("/complete_sing_up/{user_id}/{email}", response_model=ResponseCreateNewUser)
+async def complete_sing_up(
+        email: EmailStr,
+        user_id: uuid.UUID,
+        uow: UOWDep,
+        password: str,
+):
+    add_user_password: CreateUserSchemaAndEmailAndId = await AccountService().add_user_password(
+        uow,
+        user_id,
+        email,
+        password,
+    )
+    return ResponseCreateNewUser(
+        status=201,
+        error=False,
+        payload=add_user_password,
+        detail="The new user completed authorization",
     )
