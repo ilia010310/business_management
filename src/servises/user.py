@@ -3,6 +3,7 @@ import uuid
 from fastapi import HTTPException, status
 from pydantic import EmailStr
 
+from src.config import settings
 from src.schemas.user.user import CreateUserSchemaAndEmail
 from src.tasks.tasks import send_invite_code_to_email, send_invite_link_to_email
 
@@ -23,7 +24,7 @@ class UserService:
             user: UserModel = await uow.user.add_one_and_get_obj(
                 first_name=employee.first_name, last_name=employee.last_name, middle_name=employee.middle_name
             )
-            link = f"http://127.0.0.1:8000/api/auth/v1/complete_sing_up/{user.id}/{employee.email}"
+            link = f"{settings.BASE_URL}/api/auth/v1/complete_sing_up/{user.id}/{employee.email}"
             send_invite_link_to_email.delay(employee.email, link)
             admin_user_id: uuid.UUID = await uow.account.get_user_id_from_account(account.id)
             company_id: uuid.UUID = await uow.members.get_company_id_from_members(admin_user_id)
@@ -34,7 +35,7 @@ class UserService:
                 first_name=user.first_name,
                 last_name=user.last_name,
                 middle_name=user.middle_name,
-                email=invite.email,
+                email=employee.email,
             )
 
     async def change_names(self, uow: IUnitOfWork, user_id: uuid.UUID, data: CreateUserSchema) -> None:

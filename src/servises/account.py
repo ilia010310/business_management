@@ -1,5 +1,6 @@
 import uuid
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 
 from src.models.company import CompanyModel
 from src.models.user import InviteModel, AccountModel, UserModel
@@ -24,19 +25,23 @@ class AccountService:
                 return invite
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This email already exists")
 
-    async def checking_account(self, uow: IUnitOfWork, email: EmailStr):
+    async def checking_account(self, uow: IUnitOfWork, email: EmailStr) -> bool:
         async with uow:
-            result = await uow.account.checking_account_existence(email)
+            result: bool = await uow.account.checking_account_existence(email)
             return result
 
     async def create_company(self, uow: IUnitOfWork, data: SingUpCompleteSchema) -> uuid:
         async with uow:
-            company: CompanyModel = await uow.company.add_one_and_get_obj(name=data.company_name)
+            try:
+                company: CompanyModel = await uow.company.add_one_and_get_obj(name=data.company_name)
+            except IntegrityError:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail="Company with this name already exists.")
 
-            user_id = await uow.user.add_one_and_get_id(first_name=data["first_name"], last_name=data["last_name"])
+            user_id = await uow.user.add_one_and_get_id(first_name=data.first_name, last_name=data.last_name)
             await uow.members.add_one(user=user_id, company=company.id, admin=True)
             account = await uow.account.add_one_and_get_obj(
-                email=data["account"], user_id=user_id, password=hash_password(data["password"])
+                email=data.account, user_id=user_id, password=hash_password(data.password)
             )
             return CreateCompanySchema(
                 company_id=company.id,
@@ -114,7 +119,7 @@ class AccountService:
                 user_id=user_id,
                 password=hash_password(password)
             )
-            user: UserModel | None = await uow.user.get_by_query_one_or_none(user_id=user_id)
+            user: UserModel | None = await uow.user.get_by_query_one_or_none(id=user_id)
             if not user:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="This user doesnt exist")
             return CreateUserSchemaAndEmailAndId(
@@ -124,3 +129,12 @@ class AccountService:
                 id=user_id,
                 email=email,
             )
+
+    async def checking_account_and_retunt_obj(
+            self,
+            uow: IUnitOfWork,
+            email: EmailStr,
+    ) -> AccountModel | None:
+        async with uow:
+            account = await uow.account.get_by_query_one_or_none(email=email)
+            return account

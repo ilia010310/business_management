@@ -11,7 +11,7 @@ class AccountModel(BaseModel):
     __tablename__ = "account"
 
     id: Mapped[uuid_pk_T]
-    email: Mapped[str_50_T]
+    email: Mapped[str_50_T] = mapped_column(unique=True, nullable=False)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id"), unique=True)
     password: Mapped[bytes]
     active: Mapped[bool] = mapped_column(default=True)

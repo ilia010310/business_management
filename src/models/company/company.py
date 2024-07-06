@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.models.base import BaseModel
 from src.models.mixins.custom_types import (
@@ -15,7 +15,7 @@ class CompanyModel(BaseModel):
     __tablename__ = "company"
 
     id: Mapped[uuid_pk_T]
-    name: Mapped[str_50_T]
+    name: Mapped[str_50_T] = mapped_column(unique=True, nullable=False)
     inn: Mapped[int_or_none]
     created_at: Mapped[created_at_T]
     updated_at: Mapped[updated_at_T]

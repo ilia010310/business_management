@@ -63,7 +63,7 @@ async def sing_up_complete(data: SingUpCompleteSchema, uow: UOWDep):
     company_with_user: CreateCompanySchema = await AccountService().create_company(uow, data)
     return ResponseCreateCompany(
         status=200,
-        erroe=False,
+        error=False,
         payload=company_with_user,
         detail="company created",
     )
