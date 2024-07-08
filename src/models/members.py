@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.models import BaseModel
 from src.models.mixins.custom_types import uuid_pk_T

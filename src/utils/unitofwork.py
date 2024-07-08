@@ -5,6 +5,7 @@ from src.database.db import async_session_maker
 from src.repositories.account import AccountRepository
 from src.repositories.company import CompanyRepository
 from src.repositories.invite import InviteRepository
+from src.repositories.task import TaskRepository
 from src.repositories.user import UserRepository
 from src.repositories.members import MembersRepository
 
@@ -15,6 +16,7 @@ class IUnitOfWork(ABC):
     invite: InviteRepository
     company: CompanyRepository
     members: MembersRepository
+    task: TaskRepository
 
     @abstractmethod
     def __init__(self):
@@ -50,6 +52,7 @@ class UnitOfWork(IUnitOfWork):
         self.invite = InviteRepository(self.session)
         self.company = CompanyRepository(self.session)
         self.members = MembersRepository(self.session)
+        self.task = TaskRepository(self.session)
 
     async def __aexit__(self, exc_type, *args):
         if not exc_type:
