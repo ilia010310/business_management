@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from src.models import BaseModel
 
 from src.models.mixins.custom_types import uuid_pk_T, str_50_T

@@ -3,7 +3,6 @@ from src.models import BaseModel
 from src.models.mixins.custom_types import (
     uuid_pk_T,
     created_at_T,
-    updated_at_T,
     str_50_T,
 )
 

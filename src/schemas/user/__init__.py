@@ -16,7 +16,6 @@ __all__ = [
 from src.schemas.user.account import AccountSchema, CreateAccountSchema
 from src.schemas.user.sing_up import SingUpSchema, SingUpCompleteSchema
 from src.schemas.user.user import (
-    UpdateUserSchema,
     UserSchema,
     UpdateUserSchema,
     CreateUserSchema,

@@ -8,12 +8,11 @@ from src.utils.unitofwork import IUnitOfWork
 
 
 class TaskService:
-
     async def create_task(
-            self,
-            uow: IUnitOfWork,
-            task: CreateTaskSchema,
-            account: AccountSchema,
+        self,
+        uow: IUnitOfWork,
+        task: CreateTaskSchema,
+        account: AccountSchema,
     ) -> TaskSchema:
         async with uow:
             new_task: TaskModel = await uow.task.add_one_and_get_obj(
@@ -29,9 +28,9 @@ class TaskService:
             return new_task.to_pydantic_schema()
 
     async def delete_task(
-            self,
-            uow: IUnitOfWork,
-            task_id: uuid.UUID,
+        self,
+        uow: IUnitOfWork,
+        task_id: uuid.UUID,
     ) -> DeleteTaskSchema:
         async with uow:
             task: TaskModel | None = await uow.task.get_by_query_one_or_none(
@@ -43,12 +42,7 @@ class TaskService:
             await uow.task.delete_by_query(id=task_id)
             return DeleteTaskSchema(title=task_name)
 
-    async def change_task(
-            self,
-            uow: IUnitOfWork,
-            new_task: ChangeTaskSchema,
-            task_id: uuid.UUID
-    ) -> TaskSchema:
+    async def change_task(self, uow: IUnitOfWork, new_task: ChangeTaskSchema, task_id: uuid.UUID) -> TaskSchema:
         async with uow:
             task_dict = {}
             for field, value in new_task.model_dump().items():

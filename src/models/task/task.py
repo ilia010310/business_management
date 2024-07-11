@@ -21,13 +21,11 @@ class TaskModel(BaseModel):
     responsible_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"))
     author: Mapped["UserModel"] = relationship("UserModel", foreign_keys=[author_id])
     responsible: Mapped["UserModel"] = relationship("UserModel", foreign_keys=[responsible_id])
-    observers: Mapped[list["UserModel"]] = relationship("UserModel", back_populates="observed_tasks",
-                                                        secondary="observers")
-    performers: Mapped[list["UserModel"]] = relationship("UserModel", back_populates="performed_tasks",
-                                                         secondary="performers")
     deadline: Mapped[datetime]
     status: Mapped[str]
     execution_time: Mapped[timedelta]
+    company_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("company.id", ondelete="CASCADE"), nullable=False)
+    company = relationship("CompanyModel", back_populates="tasks")
 
     def to_pydantic_schema(self) -> TaskSchema:
         return TaskSchema(

@@ -16,7 +16,7 @@ async def validate_auth_user(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="invalid username or password",
     )
-    account: AccountModel | None= await AccountService().checking_account_and_retunt_obj(uow, username)
+    account: AccountModel | None = await AccountService().checking_account_and_retunt_obj(uow, username)
     if not account:
         raise unauthed_exc
     if not auth_utils.validate_password(

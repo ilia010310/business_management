@@ -15,7 +15,7 @@ from src.utils.unitofwork import IUnitOfWork
 
 class UserService:
     async def add_one_user_for_company(
-            self, uow: IUnitOfWork, employee: CreateUserSchemaAndEmail, account: AccountSchema
+        self, uow: IUnitOfWork, employee: CreateUserSchemaAndEmail, account: AccountSchema
     ) -> CreateUserSchemaAndEmailAndId:
         async with uow:
             invite_exist: bool = await uow.account.checking_account_existence(employee.email)
@@ -43,10 +43,10 @@ class UserService:
             await uow.user.update_one_by_id(user_id, dict(data))
 
     async def request_for_change_email(
-            self,
-            uow: IUnitOfWork,
-            new_email: EmailStr,
-            account: AccountSchema,
+        self,
+        uow: IUnitOfWork,
+        new_email: EmailStr,
+        account: AccountSchema,
     ) -> RequestChangeEmailSchema:
         async with uow:
             code = generator_invite_codes()

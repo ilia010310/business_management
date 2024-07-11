@@ -15,3 +15,7 @@ class CreateCompanySchema(BaseModel):
     company_name: str
     admin: uuid.UUID
     email: EmailStr
+
+
+class DeleteCompanySchema(BaseModel):
+    name: str

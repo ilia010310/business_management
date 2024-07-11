@@ -1,6 +1,3 @@
-__all__ = [
-    "TaskSchema",
-    "CreateTaskSchema"
-]
+__all__ = ["TaskSchema", "CreateTaskSchema"]
 
 from src.schemas.task.task import TaskSchema, CreateTaskSchema

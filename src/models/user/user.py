@@ -1,8 +1,5 @@
-import uuid
-from typing import List
 
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy.orm import Mapped, relationship
 from src.models import BaseModel
 from src.models.mixins.custom_types import (
     uuid_pk_T,

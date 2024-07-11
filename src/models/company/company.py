@@ -21,6 +21,7 @@ class CompanyModel(BaseModel):
     updated_at: Mapped[updated_at_T]
     users: Mapped[list["UserModel"]] = relationship("UserModel", back_populates="companies", secondary="members")
     positions: Mapped[list["PositionModel"]] = relationship("PositionModel", back_populates="company")
+    tasks: Mapped[list["TaskModel"]] = relationship("TaskModel", back_populates="company")
 
     def to_pydantic_schema(self) -> CompanySchema:
         return CompanySchema(

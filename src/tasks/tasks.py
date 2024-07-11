@@ -23,13 +23,16 @@ def get_email_template_dashboard_for_code(email_to: str, code: int):
 
 def get_email_template_dashboard_for_link(email_to: EmailStr, link: str):
     email = EmailMessage()
-    email["Subject"] = f"Ваша ссылка для окончания регистрации на платформе Business Manager"
+    email["Subject"] = "Ваша ссылка для окончания регистрации на платформе Business Manager"
     email["From"] = settings.SMTP_USER
     email["To"] = email_to
 
     email.set_content(
-        "<div>" f'<h1 style="color: black;">Регистрация</h1><br>' f"Перейдите по ссылке и придумайте пароль: {link}" "</div>",
-        subtype="html"
+        "<div>"
+        f'<h1 style="color: black;">Регистрация</h1><br>'
+        f"Перейдите по ссылке и придумайте пароль: {link}"
+        "</div>",
+        subtype="html",
     )
     return email
 

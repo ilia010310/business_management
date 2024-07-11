@@ -4,7 +4,6 @@ __all__ = [
     "StructAdmModel",
     "UserPositionModel",
     "StructAdmPositionModel",
-
 ]
 
 from src.models.company.company import CompanyModel

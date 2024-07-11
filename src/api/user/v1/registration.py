@@ -71,7 +71,7 @@ async def sing_up_complete(data: SingUpCompleteSchema, uow: UOWDep):
 
 @router.post("/login", response_model=TokenInfo)
 async def auth_user(
-        account: AccountSchema = Depends(validate_auth_user),
+    account: AccountSchema = Depends(validate_auth_user),
 ):
     jwt_payload = {
         "sub": account.id,
@@ -86,10 +86,10 @@ async def auth_user(
 
 @router.post("/complete_sing_up/{user_id}/{email}", response_model=ResponseCreateNewUser)
 async def complete_sing_up(
-        email: EmailStr,
-        user_id: uuid.UUID,
-        uow: UOWDep,
-        password: str,
+    email: EmailStr,
+    user_id: uuid.UUID,
+    uow: UOWDep,
+    password: str,
 ):
     add_user_password: CreateUserSchemaAndEmailAndId = await AccountService().add_user_password(
         uow,

@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import Type
 
 from src.database.db import async_session_maker
 from src.repositories.account import AccountRepository
 from src.repositories.company import CompanyRepository
 from src.repositories.invite import InviteRepository
+from src.repositories.position import PositionRepository
+from src.repositories.struct_adm import StructAdmRepository
 from src.repositories.task import TaskRepository
 from src.repositories.user import UserRepository
 from src.repositories.members import MembersRepository
+from src.repositories.user_position import UserPositionRepository
 
 
 class IUnitOfWork(ABC):
@@ -17,6 +19,9 @@ class IUnitOfWork(ABC):
     company: CompanyRepository
     members: MembersRepository
     task: TaskRepository
+    position: PositionRepository
+    struct_adm: StructAdmRepository
+    user_position: UserPositionRepository
 
     @abstractmethod
     def __init__(self):
@@ -53,6 +58,9 @@ class UnitOfWork(IUnitOfWork):
         self.company = CompanyRepository(self.session)
         self.members = MembersRepository(self.session)
         self.task = TaskRepository(self.session)
+        self.position = PositionRepository(self.session)
+        self.struct_adm = StructAdmRepository(self.session)
+        self.user_position = UserPositionRepository(self.session)
 
     async def __aexit__(self, exc_type, *args):
         if not exc_type:

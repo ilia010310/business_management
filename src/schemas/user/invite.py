@@ -3,7 +3,6 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr
 
-from src.models.mixins.custom_types import created_at_T
 
 
 class InviteSchema(BaseModel):
