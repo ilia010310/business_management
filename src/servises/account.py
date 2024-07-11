@@ -15,7 +15,11 @@ from src.utils.unitofwork import IUnitOfWork
 
 
 class AccountService:
-    async def checking_account_and_send_invitation(self, uow: IUnitOfWork, email: EmailStr) -> InviteModel:
+    async def checking_account_and_send_invitation(
+            self,
+            uow: IUnitOfWork,
+            email: EmailStr
+    ) -> InviteModel:
         async with uow:
             code = generator_invite_codes()
             invite_exist: bool = await uow.account.checking_account_existence(email)
@@ -36,10 +40,14 @@ class AccountService:
                 company: CompanyModel = await uow.company.add_one_and_get_obj(name=data.company_name)
             except IntegrityError:
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, detail="Company with this name already exists."
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Company with this name already exists."
                 )
 
-            user_id = await uow.user.add_one_and_get_id(first_name=data.first_name, last_name=data.last_name)
+            user_id = await uow.user.add_one_and_get_id(
+                first_name=data.first_name,
+                last_name=data.last_name
+            )
             await uow.members.add_one(user=user_id, company=company.id, admin=True)
             account = await uow.account.add_one_and_get_obj(
                 email=data.account, user_id=user_id, password=hash_password(data.password)
@@ -51,31 +59,29 @@ class AccountService:
                 email=account.email,
             )
 
-    async def get_one_account(self, uow: IUnitOfWork, account_id: str) -> AccountSchema | list:
+    async def get_one_account(self, uow: IUnitOfWork, account_id: str) -> AccountSchema:
         async with uow:
-            result = await uow.account.get_one(account_id)
-            return result
-
-    async def get_company_id(self, uow: IUnitOfWork, account: AccountSchema) -> uuid.UUID:
-        async with uow:
-            company_id: uuid.UUID = await uow.account.get_company_id_from_account(account.id)
-            return company_id
+            account: AccountModel | None = await uow.account.get_by_query_one_or_none(id=account_id)
+            if not account:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                    detail="Account doesn't exist")
+            return account.to_pydantic_schema()
 
     async def change_email(
-        self,
-        uow: IUnitOfWork,
-        account_id: uuid.UUID,
-        email: EmailStr,
-    ):
+            self,
+            uow: IUnitOfWork,
+            account_id: uuid.UUID,
+            email: EmailStr,
+    ) -> None:
         data = {"email": email}
         async with uow:
             await uow.account.update_one_by_id(account_id, data)
 
     async def change_ditail(
-        self,
-        uow: IUnitOfWork,
-        account: AccountSchema,
-        new_data: CreateUserSchema,
+            self,
+            uow: IUnitOfWork,
+            account: AccountSchema,
+            new_data: CreateUserSchema,
     ) -> CreateUserSchemaAndEmailAndId:
         async with uow:
             account: AccountModel | None = await uow.account.get_by_query_one_or_none(id=account.id)
@@ -103,7 +109,7 @@ class AccountService:
             )
 
     async def add_user_password(
-        self, uow: IUnitOfWork, user_id: uuid.UUID, email: EmailStr, password: str
+            self, uow: IUnitOfWork, user_id: uuid.UUID, email: EmailStr, password: str
     ) -> CreateUserSchemaAndEmailAndId:
         async with uow:
             check_account: bool = await uow.account.checking_account_existence(email)
@@ -122,9 +128,9 @@ class AccountService:
             )
 
     async def checking_account_and_retunt_obj(
-        self,
-        uow: IUnitOfWork,
-        email: EmailStr,
+            self,
+            uow: IUnitOfWork,
+            email: EmailStr,
     ) -> AccountModel | None:
         async with uow:
             account = await uow.account.get_by_query_one_or_none(email=email)

@@ -6,6 +6,7 @@ from src.api.dependencies import UOWDep
 from src.api.user.v1.dependencies.jwt_dependencies import get_current_account
 from src.schemas.company.position import PositionSchema, CreatePositionSchema
 from src.schemas.company.struct_adm import StructAdmSchema
+from src.schemas.company.struct_adm_position import StructAdmPositionSchema
 from src.schemas.company.user_position import UserPositionSchema
 from src.schemas.response import ResponseCreateNewTask, ResponseAddUsersToPosition
 from src.schemas.response.company.position import ResponseCreateNewPosition, ResponseDeletePosition
@@ -57,8 +58,8 @@ async def add_users_to_position(uow: UOWDep, position_id: int,
 async def add_struct_adm_to_position(uow: UOWDep, position_id: int,
                                      struct_adm_id: int,
                                      account: AccountSchema = Depends(get_current_account)):
-    struct_adm_position: StructAdmSchema = await CompanyService().add_struct_adm_to_position(uow, struct_adm_id,
-                                                                                             position_id)
+    struct_adm_position: StructAdmPositionSchema = await CompanyService().add_struct_adm_to_position(uow, struct_adm_id,
+                                                                                                     position_id)
     return ResponseAddStructAdmToPosition(
         status=201,
         error=False,

@@ -5,10 +5,12 @@ from fastapi import HTTPException, status
 from sqlalchemy import Row
 from sqlalchemy_utils import Ltree
 
-from src.models import CompanyModel, AccountModel, MembersModel, StructAdmModel, UserModel, UserPositionModel
+from src.models import CompanyModel, AccountModel, MembersModel, StructAdmModel, UserModel, UserPositionModel, \
+    StructAdmPositionModel
 from src.schemas.company.company import DeleteCompanySchema
 from src.schemas.company.position import CreatePositionSchema, PositionSchema
 from src.schemas.company.struct_adm import CreateNewStructAdmSchema, StructAdmSchema
+from src.schemas.company.struct_adm_position import StructAdmPositionSchema
 from src.schemas.company.user_position import UserPositionSchema
 from src.schemas.user import AccountSchema
 from src.utils.unitofwork import IUnitOfWork
@@ -126,7 +128,9 @@ class CompanyService:
             uow: IUnitOfWork,
             struct_adm_id: int,
             position_id: int,
-    ) -> StructAdmSchema:
+    ) -> StructAdmPositionSchema:
         async with uow:
-            struct_adm_position = await uow.struct_adm_position
-
+            struct_adm_position: StructAdmPositionModel = await uow.struct_adm_position.add_one_and_get_obj(
+                struct_adm_id=struct_adm_id,
+                position_id=position_id)
+            return struct_adm_position.to_pydantic_schema()

@@ -5,6 +5,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.models import BaseModel
+from src.schemas.task.taskusers import TaskUsersSchema
 
 
 class Role(PyEnum):
@@ -12,7 +13,7 @@ class Role(PyEnum):
     PERFORMER = "performer"
 
 
-class TasksUsersModel(BaseModel):
+class TaskUsersModel(BaseModel):
     __tablename__ = "tasks_users"
 
     user: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
@@ -20,3 +21,13 @@ class TasksUsersModel(BaseModel):
     role: Mapped[Role] = mapped_column(Enum(Role), nullable=False)
 
     __table_args__ = (PrimaryKeyConstraint("user", "task", "role"),)
+
+    def to_pydentic_schema(self) -> TaskUsersSchema:
+        return TaskUsersSchema(
+            user=self.user,
+            task=self.task,
+            role=self.role,
+        )
+
+
+

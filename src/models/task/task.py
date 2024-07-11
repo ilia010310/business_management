@@ -34,8 +34,6 @@ class TaskModel(BaseModel):
             description=self.description,
             author=self.author_id,
             responsible=self.responsible_id,
-            observers=self.observers,
-            performers=self.performers,
             deadline=self.deadline,
             status=self.status,
             execution_time=self.execution_time,

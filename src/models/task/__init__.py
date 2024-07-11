@@ -1,7 +1,7 @@
 __all__ = [
     "TaskModel",
-    "TasksUsersModel",
+    "TaskUsersModel",
 ]
 
 from src.models.task.task import TaskModel
-from src.models.task.tasks_users import TasksUsersModel
+from src.models.task.task_users import TaskUsersModel

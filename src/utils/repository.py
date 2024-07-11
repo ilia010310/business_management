@@ -92,73 +92,25 @@ class SqlAlchemyRepository(AbstractRepository):
         query = delete(self.model)
         await self.session.execute(query)
 
-    async def checking_account_existence(self, email: EmailStr) -> bool:
-        query = select(self.model).where(self.model.email == email)
-        res: Result = await self.session.execute(query)
-        account = list(res.scalars().all())
-        if account:
-            return True
-        return False
 
-    async def checking_invitation(self, data: dict) -> list:
-        query = select(self.model).where(
-            and_(self.model.email == data["account"], self.model.code == data["invite_token"])
-        )
-        result: Result = await self.session.execute(query)
-        res = list(result.scalars().all())
-        return res
 
-    async def get_one(self, id: str):
-        query = select(self.model).where(self.model.id == id)
-        result: Result = await self.session.execute(query)
-        res = result.scalars().all()
-        if res:
-            return res[0]
-        return []
 
-    async def get_user_id_from_account(self, account_id: uuid.UUID) -> uuid.UUID:
-        query = select(self.model.user_id).where(self.model.id == account_id)
-        user_id: Result | None = await self.session.execute(query)
-        return user_id.scalar_one_or_none()
 
-    async def get_company_id_from_members(self, user_id: uuid.UUID) -> uuid.UUID:
-        query = select(self.model.company).where(self.model.user == user_id)
-        result: Result = await self.session.execute(query)
-        company_id: uuid.UUID = result.scalars().all()[0]
-        return company_id
 
-    async def get_email_from_code(self, code: int) -> EmailStr:
-        query = select(self.model.email).where(self.model.code == code)
-        email: Result | None = await self.session.execute(query)
-        return email.scalar_one_or_none()
 
-    async def get_all_path_of_parent(self, parent: str) -> type(model) | None:
-        query = select(self.model.path).where(self.model.name == parent)
-        path: Result | None = await self.session.execute(query)
-        return path.scalar_one_or_none()
 
-    async def get_children_paths(self, struct_adm_id: int) -> Sequence[Row[tuple[Any, ...] | Any]]:
-        query = text(
-            "SELECT id, name, path FROM struct_adm WHERE path <@ (SELECT path FROM struct_adm WHERE id = :node_id)"
-        ).params(node_id=struct_adm_id)
-        result: Result = await self.session.execute(query)
-        child_nodes = result.fetchall()
-        return child_nodes
 
-    async def change_children_paths(self, child_nodes: Sequence[Row[tuple[Any, ...] | Any]]) -> None:
-        node_path = child_nodes[0][1]
-        for child in child_nodes[1:]:
-            child_id, child_name, child_path = child
-            new_path = child_path.replace(f"{node_path}.", "")
-            stmt = text(
-                "UPDATE struct_adm SET path = :new_path WHERE id = :child_id",
-            ).params({"new_path": new_path, "child_id": child_id})
-            await self.session.execute(stmt)
 
-    async def delete_accounts(self, users_id: list[uuid.UUID]) -> None:
-        stmt = delete(self.model).where(self.model.user_id.in_(users_id))
-        await self.session.execute(stmt)
 
-    async def delete_users(self, users_id: list[uuid.UUID]) -> None:
-        stmt = delete(self.model).where(self.model.id.in_(users_id))
-        await self.session.execute(stmt)
+
+
+
+
+
+
+
+
+
+
+
+

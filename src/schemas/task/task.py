@@ -28,6 +28,8 @@ class CreateTaskSchema(BaseModel):
     deadline: datetime
     status: str
     execution_time: timedelta
+    observers: list[uuid.UUID]
+    performers: list[uuid.UUID]
 
 
 class DeleteTaskSchema(BaseModel):

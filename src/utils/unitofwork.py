@@ -6,8 +6,9 @@ from src.repositories.company import CompanyRepository
 from src.repositories.invite import InviteRepository
 from src.repositories.position import PositionRepository
 from src.repositories.struct_adm import StructAdmRepository
-from src.repositories.struct_adm_position import StructAdmPosition
+from src.repositories.struct_adm_position import StructAdmPositionRepository
 from src.repositories.task import TaskRepository
+from src.repositories.task_user import TaskUserRepository
 from src.repositories.user import UserRepository
 from src.repositories.members import MembersRepository
 from src.repositories.user_position import UserPositionRepository
@@ -23,7 +24,8 @@ class IUnitOfWork(ABC):
     position: PositionRepository
     struct_adm: StructAdmRepository
     user_position: UserPositionRepository
-    struct_adm_position: StructAdmPosition
+    struct_adm_position: StructAdmPositionRepository
+    task_user: TaskUserRepository
 
     @abstractmethod
     def __init__(self):
@@ -63,7 +65,8 @@ class UnitOfWork(IUnitOfWork):
         self.position = PositionRepository(self.session)
         self.struct_adm = StructAdmRepository(self.session)
         self.user_position = UserPositionRepository(self.session)
-        self.struct_adm_position = StructAdmPosition(self.session)
+        self.struct_adm_position = StructAdmPositionRepository(self.session)
+        self.task_user = TaskUserRepository(self.session)
 
     async def __aexit__(self, exc_type, *args):
         if not exc_type:

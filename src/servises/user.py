@@ -52,11 +52,11 @@ class UserService:
             code = generator_invite_codes()
             invite_exist: bool = await uow.account.checking_account_existence(new_email)
             if not invite_exist:
-                invite: InviteModel = await uow.invite.add_one_and_get_obj(email=new_email, code=code)
+                await uow.invite.add_one(email=new_email, code=code)
                 send_invite_code_to_email.delay(new_email, code)
             else:
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This email already exists")
-            user_id = await uow.user.get_user_id_from_account(account.id)
+            user_id = await uow.account.get_user_id_from_account(account.id)
             if not user_id:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User in not found")
             return RequestChangeEmailSchema(
