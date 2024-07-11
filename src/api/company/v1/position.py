@@ -5,9 +5,11 @@ from fastapi import APIRouter, Depends
 from src.api.dependencies import UOWDep
 from src.api.user.v1.dependencies.jwt_dependencies import get_current_account
 from src.schemas.company.position import PositionSchema, CreatePositionSchema
+from src.schemas.company.struct_adm import StructAdmSchema
 from src.schemas.company.user_position import UserPositionSchema
 from src.schemas.response import ResponseCreateNewTask, ResponseAddUsersToPosition
 from src.schemas.response.company.position import ResponseCreateNewPosition, ResponseDeletePosition
+from src.schemas.response.company.struct_adm_position import ResponseAddStructAdmToPosition
 from src.schemas.user import AccountSchema
 from src.servises.company import CompanyService
 
@@ -51,3 +53,15 @@ async def add_users_to_position(uow: UOWDep, position_id: int,
     )
 
 
+@router.post("/{position_id}/add_struct_adm", response_model=ResponseAddStructAdmToPosition)
+async def add_struct_adm_to_position(uow: UOWDep, position_id: int,
+                                     struct_adm_id: int,
+                                     account: AccountSchema = Depends(get_current_account)):
+    struct_adm_position: StructAdmSchema = await CompanyService().add_struct_adm_to_position(uow, struct_adm_id,
+                                                                                             position_id)
+    return ResponseAddStructAdmToPosition(
+        status=201,
+        error=False,
+        payload=struct_adm_position,
+        detail="The users successfully added to position",
+    )

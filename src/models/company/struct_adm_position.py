@@ -4,6 +4,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseModel
+from src.schemas.company.struct_adm_position import StructAdmPositionSchema
 
 
 class StructAdmPositionModel(BaseModel):
@@ -17,3 +18,10 @@ class StructAdmPositionModel(BaseModel):
     )
     struct_adm: Mapped["StructAdmModel"] = relationship("StructAdmModel", back_populates="positions")
     position: Mapped["PositionModel"] = relationship("PositionModel", back_populates="struct_adm_positions")
+
+    def to_pydantic_schema(self) -> StructAdmPositionSchema:
+        return StructAdmPositionSchema(
+            struct_adm_id=self.struct_adm_id,
+            position_id=self.position_id
+        )
+

@@ -120,3 +120,13 @@ class CompanyService:
                                                                                                position=position_id)
                 list_users_position.append(user_position.to_pydantic_schema())
             return list_users_position
+
+    async def add_struct_adm_to_position(
+            self,
+            uow: IUnitOfWork,
+            struct_adm_id: int,
+            position_id: int,
+    ) -> StructAdmSchema:
+        async with uow:
+            struct_adm_position = await uow.struct_adm_position
+
